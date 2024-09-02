@@ -1,23 +1,24 @@
-﻿pipeline {
+pipeline {
     agent any
 
     environment {
-        WORKSPACE_DIR = 'C:\\Jen\\.jenkins\\workspace\\DemoCI'
-        MSBUILD_FILE = 'C:\\Jen\\.jenkins\\workspace\\DemoCI\\DatatableDemo\\DatatableDemo.csproj'
-        ARTIFACTS_DIR = 'C:\\Artifacts\\DatatableDemo'
-        PACKAGE_LOCATION = 'C:\\Artifacts\\DatatableDemo\\DatatableDemo.zip'
+        WORKSPACE_DIR = 'C:\\Jen\\.jenkins\\workspace\\DatatableDemo2'
+        MSBUILD_FILE = 'C:\\Jen\\.jenkins\\workspace\\DatatableDemo2\\DatatableDemo.csproj'
+        ARTIFACTS_DIR = 'C:\\Artifacts\\DatatableDemo2'
+        PACKAGE_LOCATION = 'C:\\Artifacts\\DatatableDemo2\\DatatableDemo.zip'
         DEPLOY_NAME = 'DatatableDemo'
         DEPLOY_PATH = 'https://ec2-52-64-60-183.ap-southeast-2.compute.amazonaws.com:8172/msdeploy.axd'
         CONTINUE_PIPELINE = false // variable to control pipeline flow
     }
 
     stages {
-       stage('Check PR Event') {
+        stage('Check PR Event') {
             when {
-                expression { return env.CHANGE_ID != null && env.GITHUB_PR_ACTION == 'opened' }
+                expression { return env.CHANGE_ID != null } // Check if it's a PR
             }
             steps {
                 script {
+                    // Add logic to check the PR action if possible
                     echo "This PR is opened, proceeding with the build..."
                     env.CONTINUE_PIPELINE = true
                 }
