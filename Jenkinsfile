@@ -8,7 +8,7 @@ pipeline {
         PACKAGE_LOCATION = 'C:\\Artifacts\\DatatableDemo2\\DatatableDemo.zip'
         DEPLOY_NAME = 'DatatableDemo'
         DEPLOY_PATH = 'https://ec2-52-64-60-183.ap-southeast-2.compute.amazonaws.com:8172/msdeploy.axd'
-        CONTINUE_PIPELINE = false // variable to control pipeline flow
+        CONTINUE_PIPELINE = 'false' // variable to control pipeline flow
     }
 
     stages {
@@ -20,14 +20,14 @@ pipeline {
                 script {
                     // Add logic to check the PR action if possible
                     echo "This PR is opened, proceeding with the build..."
-                    env.CONTINUE_PIPELINE = true
+                    env.CONTINUE_PIPELINE = 'true'
                 }
             }
         }
 
         stage('Checkout') {
             when {
-                expression { return env.CONTINUE_PIPELINE == true }
+                expression { return env.CONTINUE_PIPELINE == 'true' }
             }
             steps {
                 // Checkout the code from the repository
@@ -37,7 +37,7 @@ pipeline {
 
         stage('Restore') {
             when {
-                expression { return env.CONTINUE_PIPELINE == true }
+                expression { return env.CONTINUE_PIPELINE == 'true' }
             }
             steps {
                 dir(env.WORKSPACE_DIR) {
@@ -48,7 +48,7 @@ pipeline {
 
         stage('Build') {
             when {
-                expression { return env.CONTINUE_PIPELINE == true }
+                expression { return env.CONTINUE_PIPELINE == 'true' }
             }
             steps {
                 bat """
@@ -59,7 +59,7 @@ pipeline {
 
         stage('Post-Build') {
             when {
-                expression { return env.CONTINUE_PIPELINE == true }
+                expression { return env.CONTINUE_PIPELINE == 'true' }
             }
             steps {
                 dir(env.ARTIFACTS_DIR) {
