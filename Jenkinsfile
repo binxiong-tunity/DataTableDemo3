@@ -2,10 +2,10 @@
     agent any
 
     environment {
-        WORKSPACE_DIR = 'C:\\Jen\\.jenkins\\workspace\\DemoCI'
-        MSBUILD_FILE = 'C:\\Jen\\.jenkins\\workspace\\DemoCI\\DatatableDemo\\DatatableDemo.csproj'
-        ARTIFACTS_DIR = 'C:\\Artifacts\\DatatableDemo'
-        PACKAGE_LOCATION = 'C:\\Artifacts\\DatatableDemo\\DatatableDemo.zip'
+        WORKSPACE_DIR = 'C:\\Jen\\.jenkins\\workspace\\DatatableDemo2'
+        MSBUILD_FILE = 'C:\\Jen\\.jenkins\\workspace\\DatatableDemo2\\DatatableDemo.csproj'
+        ARTIFACTS_DIR = 'C:\\Artifacts\\DatatableDemo2'
+        PACKAGE_LOCATION = 'C:\\Artifacts\\DatatableDemo2\\DatatableDemo.zip'
         DEPLOY_NAME = 'DatatableDemo'
         DEPLOY_PATH = 'https://ec2-52-64-60-183.ap-southeast-2.compute.amazonaws.com:8172/msdeploy.axd'
         CONTINUE_PIPELINE = false // variable to control pipeline flow
