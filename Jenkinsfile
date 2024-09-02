@@ -27,7 +27,7 @@ pipeline {
 
         stage('Checkout') {
             when {
-                expression { return env.CONTINUE_PIPELINE == 'true' }
+                expression { return env.CONTINUE_PIPELINE == true }
             }
             steps {
                 // Checkout the code from the repository
@@ -37,7 +37,7 @@ pipeline {
 
         stage('Restore') {
             when {
-                expression { return env.CONTINUE_PIPELINE == 'true' }
+                expression { return env.CONTINUE_PIPELINE == true }
             }
             steps {
                 dir(env.WORKSPACE_DIR) {
@@ -48,7 +48,7 @@ pipeline {
 
         stage('Build') {
             when {
-                expression { return env.CONTINUE_PIPELINE == 'true' }
+                expression { return env.CONTINUE_PIPELINE == true }
             }
             steps {
                 bat """
@@ -59,7 +59,7 @@ pipeline {
 
         stage('Post-Build') {
             when {
-                expression { return env.CONTINUE_PIPELINE == 'true' }
+                expression { return env.CONTINUE_PIPELINE == true }
             }
             steps {
                 dir(env.ARTIFACTS_DIR) {
