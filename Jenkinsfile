@@ -1,4 +1,4 @@
-﻿pipeline {
+pipeline {
     agent any
 
     environment {
@@ -12,12 +12,13 @@
     }
 
     stages {
-       stage('Check PR Event') {
+        stage('Check PR Event') {
             when {
-                expression { return env.CHANGE_ID != null && env.GITHUB_PR_ACTION == 'opened' }
+                expression { return env.CHANGE_ID != null } // Check if it's a PR
             }
             steps {
                 script {
+                    // Add logic to check the PR action if possible
                     echo "This PR is opened, proceeding with the build..."
                     env.CONTINUE_PIPELINE = true
                 }
