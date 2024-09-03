@@ -8,7 +8,7 @@ pipeline {
         PACKAGE_LOCATION = 'C:\\Artifacts\\DatatableDemo2\\DatatableDemo.zip'
         DEPLOY_NAME = 'DatatableDemo'
         DEPLOY_PATH = 'https://ec2-52-64-60-183.ap-southeast-2.compute.amazonaws.com:8172/msdeploy.axd'
-        GIT_URL = 'https://github.com/binxiong-tunity/DatatableDemo.git'
+        GIT_URL = 'https://github.com/binxiong-tunity/DatatableDemo2.git'
     }
 
     stages {
