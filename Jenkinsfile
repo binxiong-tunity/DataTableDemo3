@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_NAME = 'DemoProject2'
+        JENKIN_PROJECT_NAME = 'DemoProject2'
         WORKSPACE_BASE_DIR = 'C:\\Jen\\.jenkins\\workspace\\'
         ARTIFACTS_BASEDIR = 'C:\\Artifacts\\'
         PROJECT_NAME = 'DatatableDemo'
@@ -16,7 +16,7 @@ pipeline {
                 script {
                     if (env.CHANGE_ID != null) {
                             env.CONTINUE_PIPELINE = 'true'
-                            env.WORKSPACE_DIR = "${env.WORKSPACE_BASE_DIR}${env.PROJECT_NAME}_PR-${env.CHANGE_ID}"
+                            env.WORKSPACE_DIR = "${env.WORKSPACE_BASE_DIR}${env.JENKIN_PROJECT_NAME}_PR-${env.CHANGE_ID}"
                             env.ARTIFACTS_DIR = "${env.ARTIFACTS_BASEDIR}DemoProject2_PR-${env.CHANGE_ID}"
                             env.PACKAGE_LOCATION = "${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}.zip"
                             env.REPO_NAME = env.GIT_URL.split('/').last().replace('.git', '')
