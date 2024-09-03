@@ -8,26 +8,26 @@ pipeline {
         PACKAGE_LOCATION = 'C:\\Artifacts\\DatatableDemo2\\DatatableDemo.zip'
         DEPLOY_NAME = 'DatatableDemo'
         DEPLOY_PATH = 'https://ec2-52-64-60-183.ap-southeast-2.compute.amazonaws.com:8172/msdeploy.axd'
-        CONTINUE_PIPELINE = 'false' // variable to control pipeline flow
     }
 
     stages {
         stage('Check PR Event') {
-            when {
-                expression { return env.CHANGE_ID != null } // Check if it's a PR
-            }
             steps {
                 script {
-                    // Add logic to check the PR action if possible
-                    echo "This PR is opened, proceeding with the build..."
-                    env.CONTINUE_PIPELINE = 'true'
+                    if (env.CHANGE_ID != null) {
+                        echo "This PR is opened, proceeding with the build..."
+                        currentBuild.description = "Building PR #${env.CHANGE_ID}"
+                        currentBuild.continuePipeline = true // Set a custom variable
+                    } else {
+                        currentBuild.continuePipeline = false
+                    }
                 }
             }
         }
 
         stage('Checkout') {
             when {
-                expression { return env.CONTINUE_PIPELINE == 'true' }
+                expression { return currentBuild.continuePipeline } 
             }
             steps {
                 // Checkout the code from the repository
@@ -36,8 +36,8 @@ pipeline {
         }
 
         stage('Restore') {
-            when {
-                expression { return env.CONTINUE_PIPELINE == 'true' }
+             when {
+                expression { return currentBuild.continuePipeline } 
             }
             steps {
                 dir(env.WORKSPACE_DIR) {
@@ -47,8 +47,8 @@ pipeline {
         }
 
         stage('Build') {
-            when {
-                expression { return env.CONTINUE_PIPELINE == 'true' }
+             when {
+                expression { return currentBuild.continuePipeline } 
             }
             steps {
                 bat """
@@ -58,8 +58,8 @@ pipeline {
         }
 
         stage('Post-Build') {
-            when {
-                expression { return env.CONTINUE_PIPELINE == 'true' }
+             when {
+                expression { return currentBuild.continuePipeline } 
             }
             steps {
                 dir(env.ARTIFACTS_DIR) {
