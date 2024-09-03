@@ -15,11 +15,10 @@ pipeline {
             steps {
                 script {
                     if (env.CHANGE_ID != null) {
-                        echo "This PR is opened, proceeding with the build..."
-                        currentBuild.description = "Building PR #${env.CHANGE_ID}"
-                        currentBuild.continuePipeline = true // Set a custom variable
+                            env.CONTINUE_PIPELINE = 'true'
+                                echo "${env.CONTINUE_PIPELINE}"
                     } else {
-                        currentBuild.continuePipeline = false
+                        env.CONTINUE_PIPELINE = 'false'
                     }
                 }
             }
@@ -27,7 +26,10 @@ pipeline {
 
         stage('Checkout') {
             when {
-                expression { return currentBuild.continuePipeline } 
+                expression {  
+                    echo "${env.CONTINUE_PIPELINE}" 
+                    return env.CONTINUE_PIPELINE = 'true' 
+                } 
             }
             steps {
                 // Checkout the code from the repository
@@ -36,8 +38,11 @@ pipeline {
         }
 
         stage('Restore') {
-             when {
-                expression { return currentBuild.continuePipeline } 
+            when {
+                expression {  
+                    echo "${env.CONTINUE_PIPELINE}" 
+                    return env.CONTINUE_PIPELINE = 'true' 
+                } 
             }
             steps {
                 dir(env.WORKSPACE_DIR) {
@@ -47,8 +52,11 @@ pipeline {
         }
 
         stage('Build') {
-             when {
-                expression { return currentBuild.continuePipeline } 
+            when {
+                expression {  
+                    echo "${env.CONTINUE_PIPELINE}" 
+                    return env.CONTINUE_PIPELINE = 'true' 
+                } 
             }
             steps {
                 bat """
@@ -58,8 +66,11 @@ pipeline {
         }
 
         stage('Post-Build') {
-             when {
-                expression { return currentBuild.continuePipeline } 
+            when {
+                expression {  
+                    echo "${env.CONTINUE_PIPELINE}" 
+                    return env.CONTINUE_PIPELINE = 'true' 
+                } 
             }
             steps {
                 dir(env.ARTIFACTS_DIR) {
