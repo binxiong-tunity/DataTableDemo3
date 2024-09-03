@@ -2,9 +2,10 @@ pipeline {
     agent any
 
     environment {
-        WORKSPACE_DIR = 'C:\\Jen\\.jenkins\\workspace\\DatatableDemo2'
+        PROJECT_NAME = 'DemoProject2'
+        WORKSPACE_BASE_DIR = 'C:\\Jen\\.jenkins\\workspace\\'
         MSBUILD_FILE = 'C:\\Jen\\.jenkins\\workspace\\DatatableDemo2\\DatatableDemo.csproj'
-        ARTIFACTS_DIR = 'C:\\Artifacts\\DatatableDemo2'
+        ARTIFACTS_BASEDIR = 'C:\\Artifacts\\'
         PACKAGE_LOCATION = 'C:\\Artifacts\\DatatableDemo2\\DatatableDemo.zip'
         DEPLOY_NAME = 'DatatableDemo'
         DEPLOY_PATH = 'https://ec2-52-64-60-183.ap-southeast-2.compute.amazonaws.com:8172/msdeploy.axd'
@@ -17,7 +18,14 @@ pipeline {
                 script {
                     if (env.CHANGE_ID != null) {
                             env.CONTINUE_PIPELINE = 'true'
-                                echo "${env.CONTINUE_PIPELINE}"
+                            env.WORKSPACE_DIR = "${env.WORKSPACE_BASE_DIR}${env.PROJECT_NAME}_PR-${env.CHANGE_ID}"
+                            env.ARTIFACTS_DIR = "${env.ARTIFACTS_BASEDIR}DemoProject2_PR-${env.CHANGE_ID}"
+                            env.PACKAGE_LOCATION = "${env.ARTIFACTS_DIR}\\${env.DEPLOY_NAME}.zip"
+
+                            echo "${env.CONTINUE_PIPELINE}"
+                            echo "${env.WORKSPACE_DIR}"
+                            echo "${env.ARTIFACTS_DIR}"
+                            echo "${env.PACKAGE_LOCATION}"
                     } else {
                         env.CONTINUE_PIPELINE = 'false'
                     }
@@ -60,9 +68,11 @@ pipeline {
                 } 
             }
             steps {
-                bat """
-                    msbuild ${env.MSBUILD_FILE} /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:DeleteExistingFiles=true /p:PackageLocation="${env.PACKAGE_LOCATION}" /p:DeployIisAppPath=demo /p:EnvironmentName=Production
-                """
+                dir(env.WORKSPACE_DIR) {
+                    bat """
+                        msbuild ${env.MSBUILD_FILE} /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:DeleteExistingFiles=true /p:PackageLocation="${env.PACKAGE_LOCATION}" /p:DeployIisAppPath=demo /p:EnvironmentName=Production
+                    """
+                }
             }
         }
 
