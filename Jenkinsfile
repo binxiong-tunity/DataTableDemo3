@@ -4,9 +4,8 @@ pipeline {
     environment {
         PROJECT_NAME = 'DemoProject2'
         WORKSPACE_BASE_DIR = 'C:\\Jen\\.jenkins\\workspace\\'
-        MSBUILD_FILE = 'C:\\Jen\\.jenkins\\workspace\\DatatableDemo2\\DatatableDemo.csproj'
         ARTIFACTS_BASEDIR = 'C:\\Artifacts\\'
-        DEPLOY_NAME = 'DatatableDemo'
+        PROJECT_NAME = 'DatatableDemo'
         DEPLOY_PATH = 'https://ec2-52-64-60-183.ap-southeast-2.compute.amazonaws.com:8172/msdeploy.axd'
         GIT_URL = 'https://github.com/binxiong-tunity/DatatableDemo2.git'
     }
@@ -19,11 +18,11 @@ pipeline {
                             env.CONTINUE_PIPELINE = 'true'
                             env.WORKSPACE_DIR = "${env.WORKSPACE_BASE_DIR}${env.PROJECT_NAME}_PR-${env.CHANGE_ID}"
                             env.ARTIFACTS_DIR = "${env.ARTIFACTS_BASEDIR}DemoProject2_PR-${env.CHANGE_ID}"
-                            env.PACKAGE_LOCATION = "${env.ARTIFACTS_DIR}\\${env.DEPLOY_NAME}.zip"
+                            env.PACKAGE_LOCATION = "${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}.zip"
                             env.REPO_NAME = env.GIT_URL.split('/').last().replace('.git', '')
 
                             echo "Repository Name from Job Name: ${env.REPO_NAME}"
-                            env.MSBUILD_FILE = "${env.WORKSPACE_DIR}\\${env.REPO_NAME}\\${env.DEPLOY_NAME}.csproj"
+                            env.MSBUILD_FILE = "${env.WORKSPACE_DIR}\\${env.PROJECT_NAME}\\${env.PROJECT_NAME}.csproj"
                             echo "MSBUILD_FILE:${env.MSBUILD_FILE}"
                             echo "CONTINUE_PIPELINE:${env.CONTINUE_PIPELINE}"
                             echo "WORKSPACE_DIR:${env.WORKSPACE_DIR}"
@@ -67,6 +66,7 @@ pipeline {
             when {
                 expression {  
                     echo "${env.CONTINUE_PIPELINE}" 
+                    echo "${env.MSBUILD_FILE}"
                     return env.CONTINUE_PIPELINE = 'true' 
                 } 
             }
