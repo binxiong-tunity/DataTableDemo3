@@ -60,7 +60,7 @@ pipeline {
                                 echo 'Check PR Event'
                                 env.CONTINUE_PIPELINE = 'true'
                                 env.WORKSPACE_DIR = "${env.WORKSPACE_BASE_DIR}${env.JENKIN_PROJECT_NAME}_PR-${env.CHANGE_ID}"
-                                env.ARTIFACTS_DIR = "${env.ARTIFACTS_BASEDIR}DemoProject2_PR-${env.CHANGE_ID}"
+                                env.ARTIFACTS_DIR = "${env.WORKSPACE_DIR}\\Artifacts"
                                 env.PACKAGE_LOCATION = "${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}.zip"
                                 env.REPO_NAME = env.GIT_URL.split('/').last().replace('.git', '')
                                 env.COMMIT_ID = powershell(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
