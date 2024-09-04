@@ -62,7 +62,7 @@ pipeline {
                                 env.PACKAGE_LOCATION = "${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}.zip"
                                 env.REPO_NAME = env.GIT_URL.split('/').last().replace('.git', '')
                                 env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                                env.ZIP_FILE = "${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.ZIP" 
+                                env.ZIP_FILE = "${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip" 
                                 echo "Repository Name from Job Name: ${env.REPO_NAME}"
                                 
                                 env.MSBUILD_FILE = "${env.WORKSPACE_DIR}\\${env.PROJECT_NAME}\\${env.PROJECT_NAME}.csproj"
