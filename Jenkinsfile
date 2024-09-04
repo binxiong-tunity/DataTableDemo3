@@ -33,12 +33,19 @@ pipeline {
                                 error "Target branch ${targetBranch} is not recognized."
                             }
                         } else {
-                            // Not a PR, check if the branch is stable
-                            if (env.BRANCH_NAME ==~ /Stable\/.*/) {
-                                echo "Branch is stable. Proceeding with CD pipeline."
-                                currentBuild.description = "Stable branch"
+                           
+                            
+                            if (env.GIT_TAG) {
+                                echo "Tag detected: ${env.GIT_TAG}"
                                 env.PIPELINE_TYPE = 'CD'
-                            } else {
+                                currentBuild.description = "Tag build: ${env.GIT_TAG}"
+                            } else if (env.BRANCH_NAME ==~ /Stable\/.*/) {
+                                // Not a tag, check if it's a stable branch for CD
+                                echo "Branch is stable: ${env.BRANCH_NAME}. Proceeding with CD pipeline."
+                                env.PIPELINE_TYPE = 'CD'
+                                currentBuild.description = "Stable branch build: ${env.BRANCH_NAME}"
+                            }
+                            else {
                                 error "Branch ${env.BRANCH_NAME} is not recognized."
                             }
                         }
