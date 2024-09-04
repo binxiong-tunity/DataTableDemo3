@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        GITHUB_REPO = 'https://github.com/binxiong-tunity/DatatableDemo3.git'
+    }
+    
     stages {
         stage('Determine Pipeline Type') {
             steps {
