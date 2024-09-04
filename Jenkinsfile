@@ -141,7 +141,15 @@ pipeline {
                     steps {
                           script {
                                  // Archive artifacts 
-                                archiveArtifacts artifacts: "Artifacts/**/*", allowEmptyArchive: false
+                                    script {
+                                    // Create a zip file with the dynamic name
+                                    bat """
+                                        powershell Compress-Archive -Path ${env.ARTIFACTS_DIR}\* -DestinationPath ${env.ZIP_FILE}
+                                    """
+        
+                                    // Archive the zip file
+                                    archiveArtifacts artifacts: "${env.ZIP_FILE}", allowEmptyArchive: false
+                                }
                         }
                     }
                 }
