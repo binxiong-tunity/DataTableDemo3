@@ -154,26 +154,30 @@ pipeline {
                     }
                 }
 
-                 stage('Transfer Artifacts') {
-                        steps {
-                            script {
-                                   echo 'Transfer Artifacts'
-                                   // Use PowerShell to clean up, then transfer and replace files in the local archive directory
-                                    powershell """
-                                    # Ensure the destination directory exists
-                                    if (-Not (Test-Path -Path "${env.LOCAL_ARCHIVE_DIR}")) {
-                                        New-Item -Path "${env.LOCAL_ARCHIVE_DIR}" -ItemType Directory
-                                    } else {
-                                        # Clean up the destination directory
-                                        Remove-Item -Path "${env.LOCAL_ARCHIVE_DIR}\\*" -Recurse -Force
-                                    }
+                stage('Transfer Artifacts') {
+                    steps {
+                        script {
+                            echo 'Transfer Artifacts to Local Archive Directory'
                 
-                                    # Copy and replace files
-                                    Copy-Item -Path "${env.ARTIFACTS_DIR}\\*" -Destination "${env.LOCAL_ARCHIVE_DIR}" -Recurse -Force
-                                    """
-                            }
+                            // Use PowerShell to clean up, then transfer and replace the zip file in the local archive directory
+                            powershell """
+                                # Ensure the destination directory exists
+                                if (-Not (Test-Path -Path "${env.LOCAL_ARCHIVE_DIR}")) {
+                                    New-Item -Path "${env.LOCAL_ARCHIVE_DIR}" -ItemType Directory
+                                } else {
+                                     # Remove only the specific ZIP file from the destination directory
+                                    \$zipFilePath = "${env.LOCAL_ARCHIVE_DIR}\\${env.ZIP_FILE}"
+                                    if (Test-Path -Path \$zipFilePath) {
+                                        Remove-Item -Path \$zipFilePath -Force
+                                    }
+                                }
+                
+                                # Transfer the zip file to the local archive directory
+                                Copy-Item -Path "${env.ZIP_FILE}" -Destination "${env.LOCAL_ARCHIVE_DIR}" -Force
+                            """
                         }
                     }
+                }
             }
         }
         
