@@ -141,7 +141,7 @@ pipeline {
                     steps {
                           script {
                                  // Archive artifacts 
-                                archiveArtifacts artifacts: "${env.ARTIFACTS_DIR}\\*", allowEmptyArchive: false
+                                archiveArtifacts artifacts: "${env.ARTIFACTS_DIR}", allowEmptyArchive: false
                         }
                     }
                 }
