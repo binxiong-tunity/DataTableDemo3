@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     environment {
-        JENKIN_PROJECT_NAME = 'DemoProject2'
+        JENKIN_PROJECT_NAME = 'DemoProject3'
         WORKSPACE_BASE_DIR = 'C:\\Jen\\.jenkins\\workspace\\'
         ARTIFACTS_BASEDIR = 'C:\\Artifacts\\'
         PROJECT_NAME = 'DatatableDemo'
         DEPLOY_PATH = 'https://ec2-52-64-60-183.ap-southeast-2.compute.amazonaws.com:8172/msdeploy.axd'
-        GIT_URL = 'https://github.com/binxiong-tunity/DatatableDemo2.git'
+        GIT_URL = 'https://github.com/binxiong-tunity/DatatableDemo3.git'
     }
 
     stages {
