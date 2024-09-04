@@ -18,7 +18,7 @@ pipeline {
                             }
                         } else {
                             // If it's not a PR, check if the branch is main
-                            if (env.BRANCH_NAME ==~ /stable/*) {
+                            if (targetBranch ==~ /Stable\/.*/) {
                                 echo "Loading Jenkinsfile-CD for main branch"
                                 load 'Jenkinsfile-CD'
                             } 
