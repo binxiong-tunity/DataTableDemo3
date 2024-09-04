@@ -9,7 +9,7 @@ pipeline {
         PROJECT_NAME = 'DatatableDemo'
         DEPLOY_PATH = 'https://ec2-52-64-60-183.ap-southeast-2.compute.amazonaws.com:8172/msdeploy.axd'
         GIT_URL = 'https://github.com/binxiong-tunity/DatatableDemo3.git'
-
+        LOCAL_ARCHIVE_DIR = "C:\\Artifacts\\${PROJECT_NAME}"
     }
     
     stages {
@@ -140,16 +140,32 @@ pipeline {
                     }
                     steps {
                           script {
-                            // Create a zip file with the dynamic name
-                            bat """
-                                powershell Compress-Archive -Path ${env.ARTIFACTS_DIR} -DestinationPath ${env.ZIP_FILE}
-                            """
-                            
-                            // Archive the zip file
-                            archiveArtifacts artifacts: "${env.ZIP_FILE}", allowEmptyArchive: false
+                                 // Archive artifacts 
+                                archiveArtifacts artifacts: "${env.ARTIFACTS_DIR}/**/*", allowEmptyArchive: false
                         }
                     }
                 }
+
+                 stage('Transfer Artifacts') {
+                        steps {
+                            script {
+                                   echo 'Transfer Artifacts'
+                                   // Use PowerShell to clean up, then transfer and replace files in the local archive directory
+                                    powershell """
+                                    # Ensure the destination directory exists
+                                    if (-Not (Test-Path -Path "${env.LOCAL_ARCHIVE_DIR}")) {
+                                        New-Item -Path "${env.LOCAL_ARCHIVE_DIR}" -ItemType Directory
+                                    } else {
+                                        # Clean up the destination directory
+                                        Remove-Item -Path "${env.LOCAL_ARCHIVE_DIR}\\*" -Recurse -Force
+                                    }
+                
+                                    # Copy and replace files
+                                    Copy-Item -Path "${env.ARTIFACTS_DIR}\\*" -Destination "${env.LOCAL_ARCHIVE_DIR}" -Recurse -Force
+                                    """
+                            }
+                        }
+                    }
             }
         }
         
