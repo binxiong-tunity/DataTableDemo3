@@ -9,6 +9,7 @@ pipeline {
         PROJECT_NAME = 'DatatableDemo'
         DEPLOY_PATH = 'https://ec2-52-64-60-183.ap-southeast-2.compute.amazonaws.com:8172/msdeploy.axd'
         GIT_URL = 'https://github.com/binxiong-tunity/DatatableDemo3.git'
+     
     }
     
     stages {
@@ -60,8 +61,10 @@ pipeline {
                                 env.ARTIFACTS_DIR = "${env.ARTIFACTS_BASEDIR}DemoProject2_PR-${env.CHANGE_ID}"
                                 env.PACKAGE_LOCATION = "${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}.zip"
                                 env.REPO_NAME = env.GIT_URL.split('/').last().replace('.git', '')
-
+                                env.COMMIT_ID = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                                env.ZIP_FILE = "${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.ZIP" 
                                 echo "Repository Name from Job Name: ${env.REPO_NAME}"
+                                
                                 env.MSBUILD_FILE = "${env.WORKSPACE_DIR}\\${env.PROJECT_NAME}\\${env.PROJECT_NAME}.csproj"
                                 echo "MSBUILD_FILE:${env.MSBUILD_FILE}"
                                 echo "CONTINUE_PIPELINE:${env.CONTINUE_PIPELINE}"
@@ -132,10 +135,15 @@ pipeline {
                         expression { return env.CONTINUE_PIPELINE == 'true' }
                     }
                     steps {
-                        echo 'Post-build steps, e.g., handling artifacts or cleanup'
-                        archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
-
-                        echo "Transferring the artifacts to the shared folder"
+                          script {
+                            // Create a zip file with the dynamic name
+                            bat """
+                                powershell Compress-Archive -Path ${env.ARTIFACTS_DIR} -DestinationPath ${env.ZIP_FILE}
+                            """
+                            
+                            // Archive the zip file
+                            archiveArtifacts artifacts: "${env.ZIP_FILE}", allowEmptyArchive: false
+                        }
                     }
                 }
             }
