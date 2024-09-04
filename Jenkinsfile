@@ -144,7 +144,7 @@ pipeline {
                                     script {
                                     // Create a zip file with the dynamic name
                                     bat """
-                                        powershell Compress-Archive -Path ${env.ARTIFACTS_DIR}\* -DestinationPath ${env.ZIP_FILE}
+                                        powershell Compress-Archive -Path "${env.ARTIFACTS_DIR}\\*" -DestinationPath ${env.ZIP_FILE}
                                     """
         
                                     // Archive the zip file
