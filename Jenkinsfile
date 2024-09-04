@@ -55,7 +55,9 @@ pipeline {
                 stage('Check PR Event') {
                     steps {
                         script {
+                           
                             if (env.CHANGE_ID != null) {
+                                echo 'Check PR Event'
                                 env.CONTINUE_PIPELINE = 'true'
                                 env.WORKSPACE_DIR = "${env.WORKSPACE_BASE_DIR}${env.JENKIN_PROJECT_NAME}_PR-${env.CHANGE_ID}"
                                 env.ARTIFACTS_DIR = "${env.ARTIFACTS_BASEDIR}DemoProject2_PR-${env.CHANGE_ID}"
@@ -84,6 +86,7 @@ pipeline {
                     }
                     steps {
                         // Checkout the code from the repository
+                        echo 'Checkout the code from the repository'
                         git url: "${env.GIT_URL}", branch: "${env.CHANGE_BRANCH}"
                     }
                 }
