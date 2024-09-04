@@ -2,6 +2,13 @@ pipeline {
     agent any
 
     stages {
+        stage('Retrieving Artifacts') {
+            steps {
+                // Retrieving Artifacts
+                echo 'Retrieve Artifacts from the jenkin server'
+            }
+        }
+
         stage('Deploy to Staging') {
             steps {
                 // Deployment steps to staging server
