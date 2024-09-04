@@ -12,9 +12,9 @@ pipeline {
                     withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                         if (env.CHANGE_ID) {
                             // If it's a PR
-                            def response = sh(script: 'curl -s -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPO}/pulls/${env.CHANGE_ID}', returnStdout: true).trim()
-                            def targetBranch = powershell(returnStdout: true, script: """
-                            \$response = '${response}' | ConvertFrom-Json
+                          def targetBranch = powershell(returnStdout: true, script: """
+                            \$headers = @{ Authorization = 'token ${GITHUB_TOKEN}' }
+                            \$response = Invoke-RestMethod -Uri "https://api.github.com/repos/${GITHUB_REPO}/pulls/${env.CHANGE_ID}" -Headers \$headers
                             \$response.base.ref
                             """).trim()
                             
