@@ -84,7 +84,7 @@ pipeline {
                     }
                     steps {
                         // Checkout the code from the repository
-                        git url: "${GIT_URL}", branch: "${env.CHANGE_BRANCH}"
+                        git url: "${env.GIT_URL}", branch: "${env.CHANGE_BRANCH}"
                     }
                 }
 
