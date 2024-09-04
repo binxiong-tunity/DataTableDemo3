@@ -8,7 +8,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                         if (env.CHANGE_ID) {
                             // If it's a PR
-                            def targetBranch = sh(script: 'curl -s -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/${GITHUB_REPO}/pulls/${env.CHANGE_ID} | jq -r .base.ref', returnStdout: true).trim()
+                            def targetBranch = bat(script: "curl -s -H \"Authorization: token ${GITHUB_TOKEN}\" https://api.github.com/repos/${GITHUB_REPO}/pulls/${env.CHANGE_ID} | jq -r .base.ref", returnStdout: true).trim()
                             
                             if (targetBranch ==~ /main/) {
                                 echo "Loading Jenkinsfile-CI for PR to main branch"
