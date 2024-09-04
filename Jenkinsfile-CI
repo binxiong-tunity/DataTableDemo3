@@ -105,4 +105,4 @@
                     echo "Transferring the artifacts to the shared folder"
             }
         }
-    }
+    
