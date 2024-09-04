@@ -18,13 +18,10 @@ pipeline {
                             }
                         } else {
                             // If it's not a PR, check if the branch is main
-                            if (env.BRANCH_NAME ==~ /main/) {
+                            if (env.BRANCH_NAME ==~ /stable/*) {
                                 echo "Loading Jenkinsfile-CD for main branch"
                                 load 'Jenkinsfile-CD'
-                            } else {
-                                echo "Loading Jenkinsfile-CI for other branches"
-                                load 'Jenkinsfile-CI'
-                            }
+                            } 
                         }
                     }
                 }
