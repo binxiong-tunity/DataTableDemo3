@@ -112,6 +112,9 @@ pipeline {
             }
             steps {
                     echo 'Post-build steps, e.g., handling artifacts or cleanup'
+                    archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+
+                    echo "Transferring the artifacts to the shared folder"
             }
         }
     }
