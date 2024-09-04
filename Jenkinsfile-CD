@@ -1,7 +1,3 @@
-pipeline {
-    agent any
-
-    stages {
         stage('Retrieving Artifacts') {
             steps {
                 // Retrieving Artifacts
@@ -30,14 +26,4 @@ pipeline {
             }
         }
 
-    }
 
-    post {
-        success {
-            echo 'CD Pipeline completed successfully!'
-        }
-        failure {
-            echo 'CD Pipeline failed!'
-        }
-    }
-}
