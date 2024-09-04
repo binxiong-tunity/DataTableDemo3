@@ -9,7 +9,7 @@ pipeline {
         PROJECT_NAME = 'DatatableDemo'
         DEPLOY_PATH = 'https://ec2-52-64-60-183.ap-southeast-2.compute.amazonaws.com:8172/msdeploy.axd'
         GIT_URL = 'https://github.com/binxiong-tunity/DatatableDemo3.git'
-     
+
     }
     
     stages {
