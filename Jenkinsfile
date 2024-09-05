@@ -218,8 +218,8 @@ pipeline {
                             // Define the PowerShell script as a string
                             def powershellScript = """
                                 # Define paths
-                                \$sourceZipPath = '${env.ARTIFACTS_BASEDIR}${env.PROJECT_NAME}\\${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip'
-                                \$destinationPath = '${env.LOCAL_ARCHIVE_DIR}'
+                                \$destinationPath = '${env.ARTIFACTS_DIR}'
+                                \$sourceZipPath = '${env.LOCAL_ARCHIVE_DIR}\\${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip'
                 
                                 # Ensure destination directory exists
                                 if (-Not (Test-Path -Path \$destinationPath)) {
