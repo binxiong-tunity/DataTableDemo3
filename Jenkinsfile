@@ -29,7 +29,7 @@ pipeline {
                                 env.TARGET_BRANCH = 'main'
                                 echo "PR target branch is main. Proceeding with CI pipeline."
                                 currentBuild.description = "PR to main"
-                                env.PIPELINE_TYPE = 'CI'
+                                env.PIPELINE_TYPE = 'CI-Light'
                             } else if (targetBranch ==~  /^(Stable\/V\d+)$/ ) {
                                 currentBuild.description = "PR to Stable"
                                env.PIPELINE_TYPE = 'CI-Light'
@@ -54,7 +54,7 @@ pipeline {
         
         stage('CI Pipeline Stages') {
             when {
-                expression { return env.PIPELINE_TYPE == 'CI' || env.PIPELINE_TYPE == 'CI-Light' }
+                expression { return env.PIPELINE_TYPE == 'CD' || env.PIPELINE_TYPE == 'CI-Light' }
             }
             stages {
                 stage('Check PR Event') {
@@ -92,7 +92,7 @@ pipeline {
 
                 stage('Checkout') {
                     when {
-                        expression {return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
+                        expression {return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' ||  env.PIPELINE_TYPE == 'CD'  }
                     }
                     steps {
                         // Checkout the code from the repository
@@ -103,7 +103,7 @@ pipeline {
 
                 stage('Restore') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' ||  env.PIPELINE_TYPE == 'CD' }
                     }
                     steps {
                         dir(env.WORKSPACE_DIR) {
@@ -114,7 +114,7 @@ pipeline {
 
                 stage('Build') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' ||  env.PIPELINE_TYPE == 'CD'  }
                     }
                     steps {
                         dir(env.WORKSPACE_DIR) {
@@ -127,7 +127,7 @@ pipeline {
 
                 stage('Testing') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' ||  env.PIPELINE_TYPE == 'CD'  }
                     }
                     steps {
                         echo 'Testing steps'
@@ -136,7 +136,7 @@ pipeline {
 
                 stage('QA') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' ||  env.PIPELINE_TYPE == 'CD'  }
                     }
                     steps {
                         echo 'QA steps - run SonarCube'
@@ -145,7 +145,7 @@ pipeline {
 
                 stage('Post-Build') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' && env.PIPELINE_TYPE == 'CI' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' && env.PIPELINE_TYPE == 'CI' ||  env.PIPELINE_TYPE == 'CD'  }
                     }
                     steps {
                           script {
@@ -165,7 +165,7 @@ pipeline {
 
                 stage('Transfer Artifacts') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' && env.PIPELINE_TYPE == 'CI' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' && env.PIPELINE_TYPE == 'CI' ||  env.PIPELINE_TYPE == 'CD' }
                     }
                     steps {
                         script {
