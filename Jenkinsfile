@@ -188,9 +188,49 @@ pipeline {
                 expression { return env.PIPELINE_TYPE == 'CD' }
             }
             stages {
+                stage('Setup Environment') {
+                    steps {
+                                env.CONTINUE_PIPELINE = 'true'
+                                env.WORKSPACE_DIR = "${env.WORKSPACE_BASE_DIR}${env.JENKIN_PROJECT_NAME}_TAG-${env.BRANCH_NAME}"
+                                env.ARTIFACTS_DIR = "${env.ARTIFACTS_DIR}"
+                                env.PACKAGE_LOCATION = "${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}.zip"
+                                env.REPO_NAME = env.GIT_URL.split('/').last().replace('.git', '')
+                                env.COMMIT_ID = powershell(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+                                echo "Commit ID: ${env.COMMIT_ID}"
+                                env.ZIP_FILE = "${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip" 
+                                echo "Repository Name from Job Name: ${env.REPO_NAME}"
+
+                                echo "CONTINUE_PIPELINE:${env.CONTINUE_PIPELINE}"
+                                echo "WORKSPACE_DIR:${env.WORKSPACE_DIR}"
+                                echo "ARTIFACTS_DIR:${env.ARTIFACTS_DIR}"
+                                echo "PACKAGE_LOCATION:${env.PACKAGE_LOCATION}"
+                    }
+                }
                 stage('Retrieving Artifacts') {
                     steps {
-                        echo 'Retrieve Artifacts from the Jenkins server'
+                        echo "PACKAGE_LOCATION == ${env.PACKAGE_LOCATION}"
+                        echo 'Retrieve and Extract Artifacts from the Jenkins server'
+                        bat """
+                            powershell -Command \"
+                            # Define paths
+                            \$sourceZipPath = '${env.LOCAL_ARCHIVE_DIR}\\${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip'
+                            \$destinationPath = '${env.}'
+            
+                            # Ensure destination directory exists
+                            if (-Not (Test-Path -Path \$destinationPath)) {
+                                New-Item -Path \$destinationPath -ItemType Directory
+                            }
+            
+                            # Copy the zip file to the local archive directory
+                            Copy-Item -Path \$sourceZipPath -Destination \$destinationPath -Force
+            
+                            # Define the path of the extracted folder
+                            \$extractPath = Join-Path -Path \$destinationPath -ChildPath '${env.PROJECT_NAME}'
+            
+                            # Unzip the file
+                            Expand-Archive -Path (Join-Path -Path \$destinationPath -ChildPath (Split-Path -Path \$sourceZipPath -Leaf)) -DestinationPath \$extractPath -Force
+                            \"
+                        """
                     }
                 }
 
