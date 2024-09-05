@@ -143,21 +143,23 @@ pipeline {
                 }
 
                 
-                 stage('Security Code Scan') {
-                        when {
-                            expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
-                        }
-                        steps {
-                            script {
-                                echo 'Running Security Code Scan'
-                                bat """
-                                    dotnet tool install --global SecurityCodeScan.CommandLine
-                                    dotnet securitycodeScan --project "${env.MSBUILD_FILE}" --output "${env.WORKSPACE_DIR}\\scs-report.xml"
-                                """
-                                archiveArtifacts artifacts: "${env.WORKSPACE_DIR}\\scs-report.xml", allowEmptyArchive: true
-                            }
+               stage('Security Code Scan') {
+                    when {
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
+                    }
+                    steps {
+                        script {
+                            echo 'Running Security Code Scan'
+                            bat """
+                                dotnet tool restore
+                                dotnet tool install --global SecurityCodeScan.Cli --version 1.0.0
+                                dotnet securitycodeScan --project "${env.MSBUILD_FILE}" --output "${env.WORKSPACE_DIR}\\scs-report.xml"
+                            """
+                            archiveArtifacts artifacts: "${env.WORKSPACE_DIR}\\scs-report.xml", allowEmptyArchive: true
                         }
                     }
+                }
+
 
 
                 stage('Post-Build') {
