@@ -35,7 +35,7 @@ pipeline {
                         } else {
                            
                             
-                            i if (env.BRANCH_NAME && env.BRANCH_NAME ==~ /^v\d+\.\d+\.\d+$/) {
+                            if (env.BRANCH_NAME && env.BRANCH_NAME ==~ /^v\d+\.\d+\.\d+$/) {
                                 echo "Tag detected: ${env.GIT_TAG}"
                                 env.PIPELINE_TYPE = 'CD'
                                 currentBuild.description = "Tag build: ${env.GIT_TAG}"
