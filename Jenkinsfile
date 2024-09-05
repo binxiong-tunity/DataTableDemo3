@@ -190,6 +190,7 @@ pipeline {
             stages {
                 stage('Setup Environment') {
                     steps {
+                             script {
                                 env.CONTINUE_PIPELINE = 'true'
                                 env.WORKSPACE_DIR = "${env.WORKSPACE_BASE_DIR}${env.JENKIN_PROJECT_NAME}_TAG-${env.BRANCH_NAME}"
                                  env.ARTIFACTS_DIR = "${env.WORKSPACE_DIR}\\Artifacts"
@@ -204,6 +205,7 @@ pipeline {
                                 echo "WORKSPACE_DIR:${env.WORKSPACE_DIR}"
                                 echo "ARTIFACTS_DIR:${env.ARTIFACTS_DIR}"
                                 echo "PACKAGE_LOCATION:${env.PACKAGE_LOCATION}"
+                             }
                     }
                 }
                 stage('Retrieving Artifacts') {
