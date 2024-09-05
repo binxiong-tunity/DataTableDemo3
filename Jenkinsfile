@@ -140,7 +140,7 @@ pipeline {
 
                 stage('Post-Build') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' && || env.PIPELINE_TYPE == 'CI' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' && env.PIPELINE_TYPE == 'CI' }
                     }
                     steps {
                           script {
@@ -160,7 +160,7 @@ pipeline {
 
                 stage('Transfer Artifacts') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' && || env.PIPELINE_TYPE == 'CI' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' && env.PIPELINE_TYPE == 'CI' }
                     }
                     steps {
                         script {
