@@ -29,7 +29,7 @@ pipeline {
                                 echo "PR target branch is main. Proceeding with CI pipeline."
                                 currentBuild.description = "PR to main"
                                 env.PIPELINE_TYPE = 'CI'
-                            } if (targetBranch ==~  /^(Stable\/V\d+)$/ ) else {
+                            } else if (targetBranch ==~  /^(Stable\/V\d+)$/ ) else {
                                 currentBuild.description = "PR to Stable"
                                env.PIPELINE_TYPE = 'CI-Light'
                             } else {
