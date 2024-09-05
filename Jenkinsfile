@@ -150,17 +150,21 @@ pipeline {
                     steps {
                         echo 'Running Security Code Scan using SecurityCodeScan'
                         dir(env.WORKSPACE_DIR) {
-                            bat 'dotnet tool install --global SecurityCodeScan.VS2022'
-                            bat 'dotnet build ${env.MSBUILD_FILE} /t:SCSAnalyze /p:Configuration=Release /p:SCSReportOutput=SARIF /p:SCSReportFileName=security_scan.sarif'
+                            // Install the SecurityCodeScan tool globally
+                            bat 'dotnet tool install --global SecurityCodeScan'
+                            
+                            // Run the SecurityCodeScan analysis and output the report in SARIF format
+                            bat 'dotnet tool run SecurityCodeScan analyze --output-format sarif --output-file security_scan.sarif'
                         }
                     }
                     post {
                         always {
-                            // Publish the report using the Warnings Next Generation plugin
+                            // Publish the SARIF report using the Warnings Next Generation plugin
                             recordIssues tools: [sarif(name: 'SecurityCodeScan', pattern: '**/security_scan.sarif')]
                         }
                     }
                 }
+
 
                 stage('Post-Build') {
                     when {
