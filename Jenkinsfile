@@ -151,7 +151,7 @@ pipeline {
                         script {
                             echo 'Running Security Code Scan'
                             bat """
-                                msbuild ${env.MSBUILD_FILE} /p:Configuration=Release /p:SecurityCodeScan=true
+                                msbuild ${env.MSBUILD_FILE} /p:Configuration=Release  /p:SecurityCodeScan=true /p:SecurityCodeScanOutput="${env.WORKSPACE_DIR}\\scs-report.xml"
                             """
                             archiveArtifacts artifacts: "${env.WORKSPACE_DIR}\\scs-report.xml", allowEmptyArchive: true
                         }
