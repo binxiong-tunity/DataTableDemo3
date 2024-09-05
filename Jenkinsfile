@@ -29,11 +29,12 @@ pipeline {
                                 echo "PR target branch is main. Proceeding with CI pipeline."
                                 currentBuild.description = "PR to main"
                                 env.PIPELINE_TYPE = 'CI'
-                            } if (targetBranch ==~  /^(Stable\/V\d+)$/ ) else {
+                            } else if (targetBranch ==~  /^(Stable\/V\d+)$/ ) {
                                 currentBuild.description = "PR to Stable"
                                env.PIPELINE_TYPE = 'CI-Light'
                             } else {
-                              error "Target Branch ${env.targetBranch} is not recognized."
+                              currentBuild.description = "PR to Other Branches"
+                               env.PIPELINE_TYPE = 'CI-Light'
                             }
                         } else {
                             if (env.BRANCH_NAME && env.BRANCH_NAME ==~ /^v\d+\.\d+\.\d+$/) {
@@ -52,7 +53,7 @@ pipeline {
         
         stage('CI Pipeline Stages') {
             when {
-                expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
+                expression { return env.PIPELINE_TYPE == 'CI' || env.PIPELINE_TYPE == 'CI-Light' }
             }
             stages {
                 stage('Check PR Event') {
@@ -66,7 +67,7 @@ pipeline {
                                 env.ARTIFACTS_DIR = "${env.WORKSPACE_DIR}\\Artifacts"
                                 env.PACKAGE_LOCATION = "${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}.zip"
                                 env.REPO_NAME = env.GIT_URL.split('/').last().replace('.git', '')
-                                env.COMMIT_ID = powershell(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+                                env.COMMIT_ID = powershell(returnStdout: true, script: 'git rev-parse HEAD').trim()
                                 echo "Commit ID: ${env.COMMIT_ID}"
                                 env.ZIP_FILE = "${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip" 
                                 echo "Repository Name from Job Name: ${env.REPO_NAME}"
@@ -198,7 +199,7 @@ pipeline {
                                  env.ARTIFACTS_DIR = "${env.WORKSPACE_DIR}\\Artifacts"
                                 env.PACKAGE_LOCATION = "${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}.zip"
                                 env.REPO_NAME = env.GIT_URL.split('/').last().replace('.git', '')
-                                env.COMMIT_ID = powershell(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+                                env.COMMIT_ID = powershell(returnStdout: true, script: 'git rev-parse HEAD').trim()
                                 echo "Commit ID: ${env.COMMIT_ID}"
                                 env.ZIP_FILE = "${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip" 
                                 echo "Repository Name from Job Name: ${env.REPO_NAME}"
