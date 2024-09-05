@@ -143,7 +143,7 @@ pipeline {
                 }
 
                 
-               stage('Security Code Scan') {
+                stage('Security Code Scan') {
                     when {
                         expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
                     }
@@ -151,9 +151,7 @@ pipeline {
                         script {
                             echo 'Running Security Code Scan'
                             bat """
-                                dotnet tool restore
-                                dotnet tool install --global SecurityCodeScan.Cli --version 1.0.0
-                                dotnet securitycodeScan --project "${env.MSBUILD_FILE}" --output "${env.WORKSPACE_DIR}\\scs-report.xml"
+                                msbuild ${env.MSBUILD_FILE} /p:Configuration=Release /p:SecurityCodeScan=true
                             """
                             archiveArtifacts artifacts: "${env.WORKSPACE_DIR}\\scs-report.xml", allowEmptyArchive: true
                         }
