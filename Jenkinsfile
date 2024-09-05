@@ -26,6 +26,7 @@ pipeline {
                                 """).trim()
                             
                             if (targetBranch ==~ /main/) {
+                                env.TARGET_BRANCH = 'main'
                                 echo "PR target branch is main. Proceeding with CI pipeline."
                                 currentBuild.description = "PR to main"
                                 env.PIPELINE_TYPE = 'CI'
@@ -67,9 +68,13 @@ pipeline {
                                 env.ARTIFACTS_DIR = "${env.WORKSPACE_DIR}\\Artifacts"
                                 env.PACKAGE_LOCATION = "${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}.zip"
                                 env.REPO_NAME = env.GIT_URL.split('/').last().replace('.git', '')
-                                env.COMMIT_ID = powershell(returnStdout: true, script: 'git rev-parse HEAD').trim()
-                                echo "Commit ID: ${env.COMMIT_ID}"
-                                env.ZIP_FILE = "${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip" 
+           
+                                 if(env.PIPELINE_TYPE == 'CI'){
+                                    env.COMMIT_ID = powershell(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                                    echo "Commit ID: ${env.COMMIT_ID}"
+                                    env.ZIP_FILE = "${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip" 
+                                }
+
                                 echo "Repository Name from Job Name: ${env.REPO_NAME}"
                                 
                                 env.MSBUILD_FILE = "${env.WORKSPACE_DIR}\\${env.PROJECT_NAME}\\${env.PROJECT_NAME}.csproj"
@@ -140,7 +145,7 @@ pipeline {
 
                 stage('Post-Build') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' && env.PIPELINE_TYPE == 'CI' }
                     }
                     steps {
                           script {
@@ -159,6 +164,9 @@ pipeline {
                 }
 
                 stage('Transfer Artifacts') {
+                    when {
+                        expression { return env.CONTINUE_PIPELINE == 'true' && env.PIPELINE_TYPE == 'CI' }
+                    }
                     steps {
                         script {
                             echo 'Transfer Artifacts to Local Archive Directory'

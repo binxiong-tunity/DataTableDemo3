@@ -1,0 +1,38 @@
+name: Create Tag After Merge to Main
+
+on:
+  push:
+    branches:
+      - main
+      
+permissions:
+  contents: write  # Required for creating and pushing tags
+  
+jobs:
+  create-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.email "your-email@example.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Create and Push Git Tag
+        run: |
+          # Get the current build number from GitHub Actions
+          build_number=${{ github.run_number }}
+          
+          # Construct the tag name
+          tag_name="${build_number}-SNAPSHOT"
+          echo "Creating tag: $tag_name"
+
+          # Create and push the tag to GitHub
+          git tag $tag_name
+          git push origin $tag_name
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
