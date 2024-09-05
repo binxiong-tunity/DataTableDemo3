@@ -192,7 +192,7 @@ pipeline {
                     steps {
                                 env.CONTINUE_PIPELINE = 'true'
                                 env.WORKSPACE_DIR = "${env.WORKSPACE_BASE_DIR}${env.JENKIN_PROJECT_NAME}_TAG-${env.BRANCH_NAME}"
-                                env.ARTIFACTS_DIR = "${env.ARTIFACTS_DIR}"
+                                 env.ARTIFACTS_DIR = "${env.WORKSPACE_DIR}\\Artifacts"
                                 env.PACKAGE_LOCATION = "${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}.zip"
                                 env.REPO_NAME = env.GIT_URL.split('/').last().replace('.git', '')
                                 env.COMMIT_ID = powershell(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
@@ -214,7 +214,7 @@ pipeline {
                             powershell -Command \"
                             # Define paths
                             \$sourceZipPath = '${env.LOCAL_ARCHIVE_DIR}\\${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip'
-                            \$destinationPath = '${env.}'
+                            \$destinationPath = '${env.ARTIFACTS_DIR}'
             
                             # Ensure destination directory exists
                             if (-Not (Test-Path -Path \$destinationPath)) {
