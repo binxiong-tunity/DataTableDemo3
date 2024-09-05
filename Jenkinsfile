@@ -142,6 +142,26 @@ pipeline {
                     }
                 }
 
+                
+                stage('Security Scan') {
+                    when {
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' || env.PIPELINE_TYPE == 'CD' }
+                    }
+                    steps {
+                        echo 'Running Security Code Scan using SecurityCodeScan'
+                        dir(env.WORKSPACE_DIR) {
+                            bat 'dotnet tool install --global SecurityCodeScan.VS2022'
+                            bat 'dotnet build ${env.MSBUILD_FILE} /t:SCSAnalyze /p:Configuration=Release /p:SCSReportOutput=SARIF /p:SCSReportFileName=security_scan.sarif'
+                        }
+                    }
+                    post {
+                        always {
+                            // Publish the report using the Warnings Next Generation plugin
+                            recordIssues tools: [sarif(name: 'SecurityCodeScan', pattern: '**/security_scan.sarif')]
+                        }
+                    }
+                }
+
                 stage('Post-Build') {
                     when {
                         expression { return env.CONTINUE_PIPELINE == 'true' && env.PIPELINE_TYPE == 'CI' ||  env.PIPELINE_TYPE == 'CD'  }
