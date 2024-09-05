@@ -248,8 +248,21 @@ pipeline {
                 }
 
                 stage('Deploy to Staging') {
+                     when {
+                        expression {  
+                            echo "${env.CONTINUE_PIPELINE}" 
+                            return env.CONTINUE_PIPELINE = 'true' 
+                        } 
+                    }
                     steps {
-                        echo 'Deployment steps to staging server'
+                        dir(env.ARTIFACTS_DIR) {
+                            withCredentials([usernamePassword(credentialsId: 'demo-project-deploy-credentials', usernameVariable: 'DEPLOY_USERNAME', passwordVariable: 'DEPLOY_PASSWORD')]) {
+                                bat """
+                                    .\\${env.PROJECT_NAME}.deploy.cmd /Y /M:"${env.DEPLOY_PATH}" /U:"${DEPLOY_USERNAME}" /P:"$DEPLOY_PASSWORD" /A:Basic
+                                """
+                            }
+                            echo 'Post-build steps, e.g., handling artifacts or cleanup'
+                        }
                     }
                 }
 
