@@ -177,8 +177,6 @@ pipeline {
                                 # Transfer the zip file to the local archive directory
                                 Copy-Item -Path "${env.ZIP_FILE}" -Destination "${env.LOCAL_ARCHIVE_DIR}" -Force
 
-                                # Delete the zip file
-                                 Remove-Item -Path "${env.ZIP_FILE}" -Force
                             """
                         }
                     }
@@ -222,6 +220,7 @@ pipeline {
                             def powershellScript = """
                                 # Define paths
                                 \$destinationPath = '${env.ARTIFACTS_DIR}'
+                                \$destinationZipPath = '${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip'
                                 \$sourceZipPath = '${env.LOCAL_ARCHIVE_DIR}\\${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip'
                 
                                 # Ensure destination directory exists
@@ -237,6 +236,9 @@ pipeline {
                 
                                 # Unzip the file
                                 Expand-Archive -Path (Join-Path -Path \$destinationPath -ChildPath (Split-Path -Path \$sourceZipPath -Leaf)) -DestinationPath \$extractPath -Force
+
+                                 # Delete the zip file
+                                 Remove-Item -Path \$destinationZipPath -Force
                             """
                 
                             // Execute the PowerShell script
