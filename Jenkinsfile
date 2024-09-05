@@ -176,6 +176,9 @@ pipeline {
                 
                                 # Transfer the zip file to the local archive directory
                                 Copy-Item -Path "${env.ZIP_FILE}" -Destination "${env.LOCAL_ARCHIVE_DIR}" -Force
+
+                                # Delete the zip file
+                                 Remove-Item -Path "${env.ZIP_FILE}" -Force
                             """
                         }
                     }
