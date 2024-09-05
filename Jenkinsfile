@@ -33,7 +33,8 @@ pipeline {
                                 currentBuild.description = "PR to Stable"
                                env.PIPELINE_TYPE = 'CI-Light'
                             } else {
-                              error "Target Branch ${env.targetBranch} is not recognized."
+                              currentBuild.description = "PR to Other Branches"
+                               env.PIPELINE_TYPE = 'CI-Light'
                             }
                         } else {
                             if (env.BRANCH_NAME && env.BRANCH_NAME ==~ /^v\d+\.\d+\.\d+$/) {
