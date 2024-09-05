@@ -140,7 +140,7 @@ pipeline {
 
                 stage('Post-Build') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' && || env.PIPELINE_TYPE == 'CI' }
                     }
                     steps {
                           script {
@@ -159,6 +159,9 @@ pipeline {
                 }
 
                 stage('Transfer Artifacts') {
+                    when {
+                        expression { return env.CONTINUE_PIPELINE == 'true' && || env.PIPELINE_TYPE == 'CI' }
+                    }
                     steps {
                         script {
                             echo 'Transfer Artifacts to Local Archive Directory'
