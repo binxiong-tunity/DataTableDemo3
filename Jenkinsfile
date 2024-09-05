@@ -29,12 +29,13 @@ pipeline {
                                 echo "PR target branch is main. Proceeding with CI pipeline."
                                 currentBuild.description = "PR to main"
                                 env.PIPELINE_TYPE = 'CI'
+                            } if (targetBranch ==~  /^(Stable\/V\d+)$/ ) else {
+                                currentBuild.description = "PR to Stable"
+                               env.PIPELINE_TYPE = 'CI-Light'
                             } else {
-                                error "Target branch ${targetBranch} is not recognized."
+                              error "Target Branch ${env.targetBranch} is not recognized."
                             }
                         } else {
-                           
-                            
                             if (env.BRANCH_NAME && env.BRANCH_NAME ==~ /^v\d+\.\d+\.\d+$/) {
                                 echo "Tag detected: ${env.GIT_TAG}"
                                 env.PIPELINE_TYPE = 'CD'
@@ -51,7 +52,7 @@ pipeline {
         
         stage('CI Pipeline Stages') {
             when {
-                expression { return env.PIPELINE_TYPE == 'CI' }
+                expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
             }
             stages {
                 stage('Check PR Event') {
@@ -85,7 +86,7 @@ pipeline {
 
                 stage('Checkout') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' }
+                        expression {return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
                     }
                     steps {
                         // Checkout the code from the repository
@@ -96,7 +97,7 @@ pipeline {
 
                 stage('Restore') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
                     }
                     steps {
                         dir(env.WORKSPACE_DIR) {
@@ -107,7 +108,7 @@ pipeline {
 
                 stage('Build') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
                     }
                     steps {
                         dir(env.WORKSPACE_DIR) {
@@ -120,7 +121,7 @@ pipeline {
 
                 stage('Testing') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
                     }
                     steps {
                         echo 'Testing steps'
@@ -129,7 +130,7 @@ pipeline {
 
                 stage('QA') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
                     }
                     steps {
                         echo 'QA steps - run SonarCube'
