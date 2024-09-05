@@ -255,7 +255,7 @@ pipeline {
                         } 
                     }
                     steps {
-                        dir(env.ARTIFACTS_DIR) {
+                        dir('${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}) {
                             withCredentials([usernamePassword(credentialsId: 'demo-project-deploy-credentials', usernameVariable: 'DEPLOY_USERNAME', passwordVariable: 'DEPLOY_PASSWORD')]) {
                                 bat """
                                     .\\${env.PROJECT_NAME}.deploy.cmd /Y /M:"${env.DEPLOY_PATH}" /U:"${DEPLOY_USERNAME}" /P:"$DEPLOY_PASSWORD" /A:Basic
