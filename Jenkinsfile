@@ -143,27 +143,21 @@ pipeline {
                 }
 
                 
-                stage('Security Scan') {
-                    when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' || env.PIPELINE_TYPE == 'CD' }
-                    }
-                    steps {
-                        echo 'Running Security Code Scan using SecurityCodeScan'
-                        dir(env.WORKSPACE_DIR) {
-                            // Install the SecurityCodeScan tool globally
-                            bat 'dotnet tool install --global SecurityCodeScan'
-                            
-                            // Run the SecurityCodeScan analysis and output the report in SARIF format
-                            bat 'dotnet tool run SecurityCodeScan analyze --output-format sarif --output-file security_scan.sarif'
+                 stage('Security Code Scan') {
+                        when {
+                            expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
+                        }
+                        steps {
+                            script {
+                                echo 'Running Security Code Scan'
+                                bat """
+                                    dotnet tool install --global SecurityCodeScan.CommandLine
+                                    dotnet securitycodeScan --project "${env.MSBUILD_FILE}" --output "${env.WORKSPACE_DIR}\\scs-report.xml"
+                                """
+                                archiveArtifacts artifacts: "${env.WORKSPACE_DIR}\\scs-report.xml", allowEmptyArchive: true
+                            }
                         }
                     }
-                    post {
-                        always {
-                            // Publish the SARIF report using the Warnings Next Generation plugin
-                            recordIssues tools: [sarif(name: 'SecurityCodeScan', pattern: '**/security_scan.sarif')]
-                        }
-                    }
-                }
 
 
                 stage('Post-Build') {
