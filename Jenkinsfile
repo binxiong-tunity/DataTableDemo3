@@ -210,29 +210,35 @@ pipeline {
                 }
                 stage('Retrieving Artifacts') {
                     steps {
-                        echo "PACKAGE_LOCATION == ${env.PACKAGE_LOCATION}"
-                        echo 'Retrieve and Extract Artifacts from the Jenkins server'
-                        bat """
-                            powershell -Command \"
-                            # Define paths
-                            \$sourceZipPath = '${env.LOCAL_ARCHIVE_DIR}\\${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip'
-                            \$destinationPath = '${env.ARTIFACTS_DIR}'
+                        
+                         script {
+                             echo "PACKAGE_LOCATION == ${env.PACKAGE_LOCATION}"
+                            echo 'Retrieve and Extract Artifacts from the Jenkins server'
             
-                            # Ensure destination directory exists
-                            if (-Not (Test-Path -Path \$destinationPath)) {
-                                New-Item -Path \$destinationPath -ItemType Directory
-                            }
-            
-                            # Copy the zip file to the local archive directory
-                            Copy-Item -Path \$sourceZipPath -Destination \$destinationPath -Force
-            
-                            # Define the path of the extracted folder
-                            \$extractPath = Join-Path -Path \$destinationPath -ChildPath '${env.PROJECT_NAME}'
-            
-                            # Unzip the file
-                            Expand-Archive -Path (Join-Path -Path \$destinationPath -ChildPath (Split-Path -Path \$sourceZipPath -Leaf)) -DestinationPath \$extractPath -Force
-                            \"
-                        """
+                            // Define the PowerShell script as a string
+                            def powershellScript = """
+                                # Define paths
+                                \$sourceZipPath = '${env.ARTIFACTS_BASEDIR}${env.PROJECT_NAME}\\${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip'
+                                \$destinationPath = '${env.LOCAL_ARCHIVE_DIR}'
+                
+                                # Ensure destination directory exists
+                                if (-Not (Test-Path -Path \$destinationPath)) {
+                                    New-Item -Path \$destinationPath -ItemType Directory
+                                }
+                
+                                # Copy the zip file to the local archive directory
+                                Copy-Item -Path \$sourceZipPath -Destination \$destinationPath -Force
+                
+                                # Define the path of the extracted folder
+                                \$extractPath = Join-Path -Path \$destinationPath -ChildPath '${env.PROJECT_NAME}'
+                
+                                # Unzip the file
+                                Expand-Archive -Path (Join-Path -Path \$destinationPath -ChildPath (Split-Path -Path \$sourceZipPath -Leaf)) -DestinationPath \$extractPath -Force
+                            """
+                
+                            // Execute the PowerShell script
+                            powershell(script: powershellScript)
+                        }
                     }
                 }
 
