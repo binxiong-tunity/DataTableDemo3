@@ -29,12 +29,13 @@ pipeline {
                                 echo "PR target branch is main. Proceeding with CI pipeline."
                                 currentBuild.description = "PR to main"
                                 env.PIPELINE_TYPE = 'CI'
+                            } if (targetBranch ==~  /^(Stable\/V\d+)$/ ) else {
+                                currentBuild.description = "PR to Stable"
+                               env.PIPELINE_TYPE = 'CI-Light'
                             } else {
-                                error "Target branch ${targetBranch} is not recognized."
+                              error "Target Branch ${env.targetBranch} is not recognized."
                             }
                         } else {
-                           
-                            
                             if (env.BRANCH_NAME && env.BRANCH_NAME ==~ /^v\d+\.\d+\.\d+$/) {
                                 echo "Tag detected: ${env.GIT_TAG}"
                                 env.PIPELINE_TYPE = 'CD'
@@ -51,7 +52,7 @@ pipeline {
         
         stage('CI Pipeline Stages') {
             when {
-                expression { return env.PIPELINE_TYPE == 'CI' }
+                expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
             }
             stages {
                 stage('Check PR Event') {
@@ -85,7 +86,7 @@ pipeline {
 
                 stage('Checkout') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' }
+                        expression {return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
                     }
                     steps {
                         // Checkout the code from the repository
@@ -96,7 +97,7 @@ pipeline {
 
                 stage('Restore') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
                     }
                     steps {
                         dir(env.WORKSPACE_DIR) {
@@ -107,7 +108,7 @@ pipeline {
 
                 stage('Build') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
                     }
                     steps {
                         dir(env.WORKSPACE_DIR) {
@@ -120,7 +121,7 @@ pipeline {
 
                 stage('Testing') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
                     }
                     steps {
                         echo 'Testing steps'
@@ -129,7 +130,7 @@ pipeline {
 
                 stage('QA') {
                     when {
-                        expression { return env.CONTINUE_PIPELINE == 'true' }
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
                     }
                     steps {
                         echo 'QA steps - run SonarCube'
@@ -176,6 +177,7 @@ pipeline {
                 
                                 # Transfer the zip file to the local archive directory
                                 Copy-Item -Path "${env.ZIP_FILE}" -Destination "${env.LOCAL_ARCHIVE_DIR}" -Force
+
                             """
                         }
                     }
@@ -210,35 +212,58 @@ pipeline {
                 }
                 stage('Retrieving Artifacts') {
                     steps {
-                        echo "PACKAGE_LOCATION == ${env.PACKAGE_LOCATION}"
-                        echo 'Retrieve and Extract Artifacts from the Jenkins server'
-                        bat """
-                            powershell -Command \"
-                            # Define paths
-                            \$sourceZipPath = '${env.LOCAL_ARCHIVE_DIR}\\${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip'
-                            \$destinationPath = '${env.ARTIFACTS_DIR}'
+                        
+                         script {
+                             echo "PACKAGE_LOCATION == ${env.PACKAGE_LOCATION}"
+                            echo 'Retrieve and Extract Artifacts from the Jenkins server'
             
-                            # Ensure destination directory exists
-                            if (-Not (Test-Path -Path \$destinationPath)) {
-                                New-Item -Path \$destinationPath -ItemType Directory
-                            }
-            
-                            # Copy the zip file to the local archive directory
-                            Copy-Item -Path \$sourceZipPath -Destination \$destinationPath -Force
-            
-                            # Define the path of the extracted folder
-                            \$extractPath = Join-Path -Path \$destinationPath -ChildPath '${env.PROJECT_NAME}'
-            
-                            # Unzip the file
-                            Expand-Archive -Path (Join-Path -Path \$destinationPath -ChildPath (Split-Path -Path \$sourceZipPath -Leaf)) -DestinationPath \$extractPath -Force
-                            \"
-                        """
+                            // Define the PowerShell script as a string
+                            def powershellScript = """
+                                # Define paths
+                                \$destinationPath = '${env.ARTIFACTS_DIR}'
+                                \$destinationZipPath = '${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip'
+                                \$sourceZipPath = '${env.LOCAL_ARCHIVE_DIR}\\${env.PROJECT_NAME}__${env.COMMIT_ID}-SNAPSHOT.zip'
+                
+                                # Ensure destination directory exists
+                                if (-Not (Test-Path -Path \$destinationPath)) {
+                                    New-Item -Path \$destinationPath -ItemType Directory
+                                }
+                
+                                # Copy the zip file to the local archive directory
+                                Copy-Item -Path \$sourceZipPath -Destination \$destinationPath -Force
+                
+                                # Define the path of the extracted folder
+                                \$extractPath = Join-Path -Path \$destinationPath -ChildPath '${env.PROJECT_NAME}'
+                
+                                # Unzip the file
+                                Expand-Archive -Path (Join-Path -Path \$destinationPath -ChildPath (Split-Path -Path \$sourceZipPath -Leaf)) -DestinationPath \$extractPath -Force
+
+                                 # Delete the zip file
+                                 Remove-Item -Path \$destinationZipPath -Force
+                            """
+                
+                            // Execute the PowerShell script
+                            powershell(script: powershellScript)
+                        }
                     }
                 }
 
                 stage('Deploy to Staging') {
+                     when {
+                        expression {  
+                            echo "${env.CONTINUE_PIPELINE}" 
+                            return env.CONTINUE_PIPELINE = 'true' 
+                        } 
+                    }
                     steps {
-                        echo 'Deployment steps to staging server'
+                        dir("${env.ARTIFACTS_DIR}\\${env.PROJECT_NAME}") {
+                            withCredentials([usernamePassword(credentialsId: 'demo-project-deploy-credentials', usernameVariable: 'DEPLOY_USERNAME', passwordVariable: 'DEPLOY_PASSWORD')]) {
+                                bat """
+                                    .\\${env.PROJECT_NAME}.deploy.cmd /Y /M:"${env.DEPLOY_PATH}" /U:"${DEPLOY_USERNAME}" /P:"$DEPLOY_PASSWORD" /A:Basic
+                                """
+                            }
+                            echo 'Post-build steps, e.g., handling artifacts or cleanup'
+                        }
                     }
                 }
 
