@@ -35,16 +35,11 @@ pipeline {
                         } else {
                            
                             
-                            if (env.GIT_TAG) {
+                            i if (env.BRANCH_NAME && env.BRANCH_NAME ==~ /^v\d+\.\d+\.\d+$/) {
                                 echo "Tag detected: ${env.GIT_TAG}"
                                 env.PIPELINE_TYPE = 'CD'
                                 currentBuild.description = "Tag build: ${env.GIT_TAG}"
-                            } else if (env.BRANCH_NAME ==~ /Stable\/.*/) {
-                                // Not a tag, check if it's a stable branch for CD
-                                echo "Branch is stable: ${env.BRANCH_NAME}. Proceeding with CD pipeline."
-                                env.PIPELINE_TYPE = 'CD'
-                                currentBuild.description = "Stable branch build: ${env.BRANCH_NAME}"
-                            }
+                            } 
                             else {
                                 error "Branch ${env.BRANCH_NAME} is not recognized."
                             }
