@@ -53,7 +53,7 @@ pipeline {
         
         stage('CI Pipeline Stages') {
             when {
-                expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
+                expression { return env.PIPELINE_TYPE == 'CI' || env.PIPELINE_TYPE == 'CI-Light' }
             }
             stages {
                 stage('Check PR Event') {
