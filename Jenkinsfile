@@ -142,6 +142,24 @@ pipeline {
                     }
                 }
 
+                
+                stage('Security Code Scan') {
+                    when {
+                        expression { return env.CONTINUE_PIPELINE == 'true' || env.PIPELINE_TYPE == 'CI-Light' }
+                    }
+                    steps {
+                        script {
+                            echo 'Running Security Code Scan'
+                            bat """
+                                msbuild ${env.MSBUILD_FILE} /p:Configuration=Release  /p:SecurityCodeScan=true /p:SecurityCodeScanOutput="${env.WORKSPACE_DIR}\\scs-report.xml"
+                            """
+                            archiveArtifacts artifacts: "${env.WORKSPACE_DIR}\\scs-report.xml", allowEmptyArchive: true
+                        }
+                    }
+                }
+
+
+
                 stage('Post-Build') {
                     when {
                         expression { return env.CONTINUE_PIPELINE == 'true' && env.PIPELINE_TYPE == 'CI' ||  env.PIPELINE_TYPE == 'CD'  }
@@ -292,6 +310,10 @@ pipeline {
     }
 
     post {
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs() 
+        }
         success {
             echo 'Pipeline completed successfully!'
         }
