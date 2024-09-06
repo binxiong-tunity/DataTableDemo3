@@ -7,6 +7,7 @@ pipeline {
         WORKSPACE_BASE_DIR = 'C:\\Jen\\.jenkins\\workspace\\'
         ARTIFACTS_BASEDIR = 'C:\\Artifacts\\'
         PROJECT_NAME = 'DatatableDemo'
+        PROJECT_NAME_TEST = 'DatatableDemoTests'
         DEPLOY_PATH = 'https://ec2-52-64-60-183.ap-southeast-2.compute.amazonaws.com:8172/msdeploy.axd'
         GIT_URL = 'https://github.com/binxiong-tunity/DatatableDemo3.git'
         LOCAL_ARCHIVE_DIR = "C:\\Artifacts\\${PROJECT_NAME}"
